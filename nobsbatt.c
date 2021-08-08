@@ -31,18 +31,6 @@
 #include <unistd.h>
 
 static int fd_apm;      /* File descriptor for apm */
-static int fd_xserv;    /* File descriptor for x11 */
-
-struct timeval timer;
-
-/* X11 shit */
-XftDraw *draw;
-XftFont *font;
-XftColor color;
-Display *display;
-int screen;
-Window window;
-GC gc;
 
 /* Function prototypes */
 void timer_setup();
@@ -57,8 +45,19 @@ main()
 	XEvent xev;
 	struct apm_power_info *apm_status = NULL;
 	char *acdc_str, *perc_str, *time_str;
+
+	/* X11 shit */
+	int fd_xserv;
+	XftDraw *draw;
+	XftFont *font;
+	XftColor color;
+	Display *display;
+	int screen;
+	Window window;
+	GC gc;
 	fd_set fdset;
 	XRenderColor xrc = TEXT_COLOR;
+	struct timeval timer;
 
 	apm_status = (struct apm_power_info *)malloc(sizeof(struct apm_power_info));
 	if (apm_status == NULL)
@@ -103,7 +102,7 @@ main()
 		FD_ZERO(&fdset);
 		FD_SET(fd_xserv, &fdset);
 
-		timer_setup();
+		timer_setup(&timer);
 
 		if (!select(fd_xserv + 1, &fdset, 0, 0, &timer)) {
 			if (apm_ioctl(apm_status) < 0)
@@ -151,10 +150,10 @@ main()
 }
 
 void
-timer_setup()
+timer_setup(struct timeval *timer)
 {
-	timer.tv_usec = 0;
-	timer.tv_sec = POLL_SECONDS;
+	timer->tv_usec = 0;
+	timer->tv_sec = POLL_SECONDS;
 }
 
 int
