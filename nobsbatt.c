@@ -33,7 +33,7 @@
 static int fd_apm;      /* File descriptor for apm */
 
 /* Function prototypes */
-void timer_setup();
+void timer_setup(struct timeval *);
 int apm_ioctl(struct apm_power_info *);
 char *make_acdc_str(struct apm_power_info *);
 char *make_perc_str(struct apm_power_info *);
