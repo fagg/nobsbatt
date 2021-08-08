@@ -32,7 +32,6 @@
 
 static int fd_apm;      /* File descriptor for apm */
 static int fd_xserv;    /* File descriptor for x11 */
-fd_set fdset;
 
 struct timeval timer;
 
@@ -58,6 +57,7 @@ main()
 	XEvent xev;
 	struct apm_power_info *apm_status = NULL;
 	char *acdc_str, *perc_str, *time_str;
+	fd_set fdset;
 	XRenderColor xrc = TEXT_COLOR;
 
 	apm_status = (struct apm_power_info *)malloc(sizeof(struct apm_power_info));
@@ -72,6 +72,8 @@ main()
 	fd_xserv = ConnectionNumber(display);
 	font = XftFontOpenName(display, DefaultScreen(display), FONT_NAME);
 
+	/* xxx need to find a way to handle things like "top left",
+	 * "bottom right" etc. but whatever, this'll do for now */
 	window = XCreateSimpleWindow(display,
 	    DefaultRootWindow(display),
 	    0,
