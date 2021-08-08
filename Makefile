@@ -26,5 +26,8 @@ nobsbatt:
 install:
 	/usr/bin/install -o root -g wheel -m 755 nobsbatt /usr/local/bin/nobsbatt
 
+uninstall:
+	rm /usr/local/bin/nobsbatt
+
 clean:
 	rm -rf ./nobsbatt
