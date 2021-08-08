@@ -114,6 +114,8 @@ main()
 
 			XClearWindow(display, window);
 
+			/* xxx is there a way to make the positioning
+			 * less brittle? */
 			XftDrawStringUtf8(draw, &color, font, 5, WINDOW_SIZE/4,
 			    (XftChar8 *)perc_str, strlen(perc_str));
 
