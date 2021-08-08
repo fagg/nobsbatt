@@ -35,6 +35,7 @@ get it looking right.
 ## Install
 
 `make`
+
 `doas make install`
 
 There are no dependencies on anything outside of the base system
