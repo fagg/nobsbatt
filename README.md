@@ -11,7 +11,7 @@ I wanted something that:
 - Fit my preferred colorscheme and font.
 - Didn't offer stupid features I didn't want.
 - Wasn't ugly with gross little bitmaps or eye-gouging colors.
-- Quite simply: just show me the AC status, battery percentange and
+- Quite simply: just show me the AC status, battery percentage and
 estimated runtime (if applicable), stay in the corner near xclock and
 get out of the way.
 
@@ -46,18 +46,21 @@ want to use some other font, you need to configure that.
 
 No idea. And I don't care enough to find out.
 
-## You're a fool! Use a bar! Use <insert bloated DE here> because it has this!
+## You're a fool! Use a bar! Use `insert bloated DE here` because it has this!
 
 No. Because:
 
 a) I don't have to justify my choices to you
+
 b) I wrote this
+
 c) Go away
+
 d) No.
 
 Also, no.
 
-## Please implement <random bloated feature> because I want it!
+## Please implement `random bloated feature` because I want it!
 
 No.
 
