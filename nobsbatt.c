@@ -42,7 +42,6 @@ char *make_time_str(struct apm_power_info *);
 int
 main()
 {
-	XEvent xev;
 	struct apm_power_info *apm_status = NULL;
 	char *acdc_str, *perc_str, *time_str;
 
@@ -57,6 +56,7 @@ main()
 	GC gc;
 	fd_set fdset;
 	XRenderColor xrc = TEXT_COLOR;
+	XEvent xev;
 	struct timeval timer;
 
 	apm_status = (struct apm_power_info *)malloc(sizeof(struct apm_power_info));
