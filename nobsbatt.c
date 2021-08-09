@@ -141,7 +141,6 @@ main()
 
 	free(apm_status);
 	close(fd_apm);
-	close(fd_apm);
 	XFreeGC(display, gc);
 	XDestroyWindow(display, window);
 	XCloseDisplay(display);
