@@ -74,6 +74,10 @@ main()
 	if ((fd_apm = open(APM_DEV, O_RDONLY)) < 0)
 		err(1, "Could not open APM device: %s", APM_DEV);
 
+	/* Get an initial APM status */
+	if (apm_ioctl(apm_status) < 0)
+		err(1, "apm ioctl");
+
 	display = XOpenDisplay((char *)0);
 	screen = DefaultScreen(display);
 	fd_xserv = ConnectionNumber(display);
@@ -97,6 +101,8 @@ main()
 	draw = XftDrawCreate(display, window, DefaultVisual(display, 0),
 	    DefaultColormap(display, 0));
 
+	XSelectInput(display, window, ExposureMask | StructureNotifyMask);
+
 	gc = XCreateGC(display, window, 0, 0);
 	XSetBackground(display, gc, BG_COLOR);
 	XSetForeground(display, gc, FG_COLOR);
@@ -112,34 +118,38 @@ main()
 
 		timer_setup(&timer);
 
-		if (!select(fd_xserv + 1, &fdset, 0, 0, &timer)) {
+		if (select(fd_xserv + 1, &fdset, 0, 0, &timer) == 0)
+			/* Timer completed, so update the
+			 * status before redraw. */
 			if (apm_ioctl(apm_status) < 0)
 				err(1, "apm ioctl");
 
-			acdc_str = make_acdc_str(apm_status);
-			perc_str = make_perc_str(apm_status);
+		/* Draw everything, even if the info
+		 * is technically stale. This is necessary
+		 * to handle other events like window exposure. */
+		acdc_str = make_acdc_str(apm_status);
+		perc_str = make_perc_str(apm_status);
 
-			XClearWindow(display, window);
+		XClearWindow(display, window);
 
-			/* xxx is there a way to make the positioning
-			 * less brittle? */
-			XftDrawStringUtf8(draw, &color, font, 5, WINDOW_SIZE/4,
-			    (XftChar8 *)perc_str, strlen(perc_str));
+		/* xxx is there a way to make the positioning
+		 * less brittle? */
+		XftDrawStringUtf8(draw, &color, font, 5, WINDOW_SIZE/4,
+		    (XftChar8 *)perc_str, strlen(perc_str));
 
+		XftDrawStringUtf8(draw, &color, font, 5,
+		    3.75 * (WINDOW_SIZE/4),
+		    (XftChar8 *)acdc_str, strlen(acdc_str));
+
+		free(acdc_str);
+		free(perc_str);
+
+		if (APM_ON_BATT(apm_status)) {
+			time_str = make_time_str(apm_status);
 			XftDrawStringUtf8(draw, &color, font, 5,
-			    3.75 * (WINDOW_SIZE/4),
-			    (XftChar8 *)acdc_str, strlen(acdc_str));
-
-			free(acdc_str);
-			free(perc_str);
-
-			if (APM_ON_BATT(apm_status)) {
-				time_str = make_time_str(apm_status);
-				XftDrawStringUtf8(draw, &color, font, 5,
-				    (WINDOW_SIZE/2) + 10,
-				    (XftChar8 *)time_str, strlen(time_str));
-				free(time_str);
-			}
+			    (WINDOW_SIZE/2) + 10,
+			    (XftChar8 *)time_str, strlen(time_str));
+			free(time_str);
 		}
 
 		while (XPending(display))
