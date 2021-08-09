@@ -133,8 +133,7 @@ main()
 			free(acdc_str);
 			free(perc_str);
 
-			if (apm_status->ac_state == APM_AC_OFF ||
-			    apm_status->ac_state == APM_AC_BACKUP) {
+			if (APM_ON_BATT(apm_status)) {
 				time_str = make_time_str(apm_status);
 				XftDrawStringUtf8(draw, &color, font, 5,
 				    (WINDOW_SIZE/2) + 10,
