@@ -39,6 +39,14 @@ char *make_acdc_str(struct apm_power_info *);
 char *make_perc_str(struct apm_power_info *);
 char *make_time_str(struct apm_power_info *);
 
+/* Helpful macros */
+
+#define APM_ON_BATT(x)\
+	((x)->ac_state == APM_AC_OFF || (x)->ac_state == APM_AC_BACKUP)
+
+#define APM_ON_AC(x)\
+	((x)->ac_state == APM_AC_ON)
+
 int
 main()
 {
@@ -180,10 +188,9 @@ make_acdc_str(struct apm_power_info *status)
 {
 	char *str = calloc(9, sizeof(char));
 
-	if (status->ac_state == APM_AC_ON)
+	if (APM_ON_AC(status))
 		asprintf(&str, "Power: AC");
-	else if (status->ac_state == APM_AC_OFF ||
-	    status->ac_state == APM_AC_BACKUP)
+	else if (APM_ON_BATT(status))
 		asprintf(&str, "Power: DC");
 	else
 		asprintf(&str, "Power: ?");
