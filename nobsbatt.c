@@ -169,7 +169,7 @@ apm_ioctl(struct apm_power_info *apm_status)
 	if (ioctl(fd_apm, APM_IOC_GETPOWER, apm_status) == -1)
 		return -1;
 
-        /* Make sure we have something we understand. */
+	/* Make sure we have something we understand. */
 	switch (apm_status->ac_state) {
 	case APM_AC_OFF:
 	case APM_AC_ON:
