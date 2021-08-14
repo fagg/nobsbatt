@@ -83,7 +83,9 @@ main()
 	XEvent xev;
 	struct timeval timer;
 
-	apm_status = (struct apm_power_info *)malloc(sizeof(struct apm_power_info));
+	apm_status = (struct apm_power_info *)
+	    malloc(sizeof(struct apm_power_info));
+
 	if (apm_status == NULL)
 		err(1, "malloc");
 
