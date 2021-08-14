@@ -117,16 +117,20 @@ main()
 	else
 		hints->y = win_y;
 
-	hints->width = win_width;
-	hints->height = win_height;
-	hints->flags = PPosition | PSize;
+	hints->min_width = win_width;
+	hints->max_width = win_width;
+	hints->base_width = win_width;
+	hints->min_height = win_height;
+	hints->max_height = win_height;
+	hints->base_height = win_height;
+	hints->flags = PPosition | PMinSize | PMaxSize | PBaseSize;
 
 	window = XCreateSimpleWindow(display,
 	    DefaultRootWindow(display),
 	    hints->x,
 	    hints->y,
-	    hints->width,
-	    hints->height,
+	    hints->base_width,
+	    hints->base_height,
 	    5,
 	    FG_COLOR,
 	    BG_COLOR);
@@ -169,11 +173,11 @@ main()
 
 		/* xxx is there a way to make the positioning
 		 * less brittle? */
-		XftDrawStringUtf8(draw, &color, font, 5, hints->width/4,
+		XftDrawStringUtf8(draw, &color, font, 5, hints->base_width/4,
 		    (XftChar8 *)perc_str, strlen(perc_str));
 
 		XftDrawStringUtf8(draw, &color, font, 5,
-		    3.75 * (hints->width/4),
+		    3.75 * (hints->base_width/4),
 		    (XftChar8 *)acdc_str, strlen(acdc_str));
 
 		free(acdc_str);
@@ -182,7 +186,7 @@ main()
 		if (APM_ON_BATT(apm_status)) {
 			time_str = make_time_str(apm_status);
 			XftDrawStringUtf8(draw, &color, font, 5,
-			    (hints->width/2) + 10,
+			    (hints->base_width/2) + 10,
 			    (XftChar8 *)time_str, strlen(time_str));
 			free(time_str);
 		}
