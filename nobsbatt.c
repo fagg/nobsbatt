@@ -51,12 +51,17 @@ char *make_perc_str(struct apm_power_info *);
 char *make_time_str(struct apm_power_info *);
 
 /* Helpful macros */
-
 #define APM_ON_BATT(x)\
 	((x)->ac_state == APM_AC_OFF || (x)->ac_state == APM_AC_BACKUP)
 
 #define APM_ON_AC(x)\
 	((x)->ac_state == APM_AC_ON)
+
+#define APM_UNKNOWN(x)\
+	((x)->ac_state == APM_AC_UNKNOWN)
+
+#define APM_STATUS_IS_VALID(x)\
+	(APM_ON_AC((x)) || APM_ON_BATT((x)) || APM_UNKNOWN((x)))
 
 int
 main()
@@ -213,18 +218,10 @@ apm_ioctl(struct apm_power_info *apm_status)
 	if (ioctl(fd_apm, APM_IOC_GETPOWER, apm_status) == -1)
 		return -1;
 
-	/* Make sure we have something we understand. */
-	switch (apm_status->ac_state) {
-	case APM_AC_OFF:
-	case APM_AC_ON:
-	case APM_AC_BACKUP:
-	case APM_AC_UNKNOWN:
-		return 0;
-	default:
-		fprintf(stderr, "Got an APM status we don't support\n");
-	}
+	if (!APM_STATUS_IS_VALID(apm_status))
+		return -1;
 
-	return -1;
+	return 0;
 }
 
 char *
