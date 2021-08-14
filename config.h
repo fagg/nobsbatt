@@ -11,4 +11,3 @@
 
 /* APM device */
 #define APM_DEV "/dev/apm"
-
