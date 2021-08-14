@@ -7,7 +7,7 @@ boxes you get on FVWM and GNUStep.
 
 I wanted something that:
 
-- Wasn't itself bloated, or depend on a whole bunch of extraneous shit.
+- Wasn't itself bloated, or dependent on a whole bunch of extraneous shit.
 - Fit my preferred colorscheme and font.
 - Didn't offer stupid features I didn't want.
 - Wasn't ugly with gross little bitmaps or eye-gouging colors.
