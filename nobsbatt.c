@@ -223,14 +223,17 @@ apm_ioctl(struct apm_power_info *apm_status)
 char *
 make_acdc_str(struct apm_power_info *status)
 {
-	char *str = calloc(9, sizeof(char));
+	char *str;
+	int rc;
 
 	if (APM_ON_AC(status))
-		asprintf(&str, "Power: AC");
+		rc = asprintf(&str, "Power: AC");
 	else if (APM_ON_BATT(status))
-		asprintf(&str, "Power: DC");
+		rc = asprintf(&str, "Power: DC");
 	else
-		asprintf(&str, "Power: ?");
+		rc = asprintf(&str, "Power: ?");
+	if (rc < 0)
+		err(1, "make_acdc_str");
 
 	return str;
 }
@@ -238,17 +241,19 @@ make_acdc_str(struct apm_power_info *status)
 char *
 make_perc_str(struct apm_power_info *status)
 {
-	char *str = calloc(9, sizeof(char));
+	char *str;
 	unsigned int perc = (unsigned int)status->battery_life;
 
-	asprintf(&str, "Cap: %3d%%", perc);
+	if (asprintf(&str, "Cap: %3d%%", perc) < 0)
+		err(1, "make_perc_str");
+
 	return str;
 }
 
 char *
 make_time_str(struct apm_power_info *status)
 {
-	char *str = calloc(9, sizeof(char));
+	char *str;
 	unsigned int mins = (unsigned int)status->minutes_left;
 	unsigned int hrs = 0;
 
@@ -257,7 +262,9 @@ make_time_str(struct apm_power_info *status)
 		mins = mins % 60;
 	}
 
-	asprintf(&str, "Est:%2d:%02d", hrs, mins);
+	if (asprintf(&str, "Est:%2d:%02d", hrs, mins) < 0)
+		err(1, "make_time_str");
+
 	return str;
 }
 
