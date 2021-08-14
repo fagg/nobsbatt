@@ -33,14 +33,14 @@
 static int fd_apm;      /* File descriptor for apm */
 
 /* Window geometry settings */
-static int win_width  = 0;
+static int win_width = 0;
 static int win_height = 0;
-static int win_x      = 0;
-static int win_y      = 0;
+static int win_x = 0;
+static int win_y = 0;
 
 /* Screen geometry */
 static int screen_height = 0;
-static int screen_width  = 0;
+static int screen_width = 0;
 
 /* Function prototypes */
 void configure_window_geometry();
@@ -99,8 +99,7 @@ main()
 	fd_xserv = ConnectionNumber(display);
 	font = XftFontOpenName(display, DefaultScreen(display), FONT_NAME);
 
-
-	screen_width  = DisplayWidth(display, screen);
+	screen_width = DisplayWidth(display, screen);
 	screen_height = DisplayHeight(display, screen);
 
 	configure_window_geometry();
@@ -273,15 +272,15 @@ configure_window_geometry()
 
 	xgbm = XParseGeometry(X_GEOM, &x, &y, &w, &h);
 	if (xgbm & XValue)
-		win_x       = x;
+		win_x = x;
 	if (xgbm & YValue)
-		win_y       = y;
+		win_y = y;
 	if (xgbm & WidthValue)
-		win_width  = (int) w;
+		win_width = (int)w;
 	if (xgbm & HeightValue)
-		win_height = (int) h;
+		win_height = (int)h;
 	if (xgbm & XNegative && win_x == 0)
-		win_x      = -1;
+		win_x = -1;
 	if (xgbm & YNegative && win_y == 0)
-		win_y      = -1;
+		win_y = -1;
 }
