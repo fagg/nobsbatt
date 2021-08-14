@@ -32,7 +32,18 @@
 
 static int fd_apm;      /* File descriptor for apm */
 
+/* Window geometry settings */
+static int win_width  = 0;
+static int win_height = 0;
+static int win_x      = 0;
+static int win_y      = 0;
+
+/* Screen geometry */
+static int screen_height = 0;
+static int screen_width  = 0;
+
 /* Function prototypes */
+void configure_window_geometry();
 void timer_setup(struct timeval *);
 int apm_ioctl(struct apm_power_info *);
 char *make_acdc_str(struct apm_power_info *);
@@ -54,14 +65,14 @@ main()
 	char *acdc_str, *perc_str, *time_str;
 
 	/* X11 shit */
-	int fd_xserv;
+	int fd_xserv, screen;
 	XftDraw *draw;
 	XftFont *font;
 	XftColor color;
 	Display *display;
-	int screen;
 	Window window;
 	GC gc;
+	XSizeHints *hints;
 	fd_set fdset;
 	XRenderColor xrc = TEXT_COLOR;
 	XEvent xev;
@@ -83,17 +94,40 @@ main()
 	fd_xserv = ConnectionNumber(display);
 	font = XftFontOpenName(display, DefaultScreen(display), FONT_NAME);
 
-	/* xxx need to find a way to handle things like "top left",
-	 * "bottom right" etc. but whatever, this'll do for now */
+
+	screen_width  = DisplayWidth(display, screen);
+	screen_height = DisplayHeight(display, screen);
+
+	configure_window_geometry();
+
+	if ((hints = XAllocSizeHints()) == NULL)
+		err(1, "XAllocSizeHints");
+
+	if (win_x < 0)
+		hints->x = win_x + screen_width - win_width;
+	else
+		hints->x = win_x;
+
+	if (win_y < 0)
+		hints->y = win_y + screen_height - win_height;
+	else
+		hints->y = win_y;
+
+	hints->width = win_width;
+	hints->height = win_height;
+	hints->flags = PPosition | PSize;
+
 	window = XCreateSimpleWindow(display,
 	    DefaultRootWindow(display),
-	    0,
-	    0,
-	    WINDOW_SIZE,
-	    WINDOW_SIZE,
+	    hints->x,
+	    hints->y,
+	    hints->width,
+	    hints->height,
 	    5,
 	    FG_COLOR,
 	    BG_COLOR);
+
+	XSetNormalHints(display, window, hints);
 
 	XSetStandardProperties(display, window, WINDOW_NAME, WINDOW_NAME,
 	    None, NULL, 0, NULL);
@@ -108,7 +142,7 @@ main()
 	XSetForeground(display, gc, FG_COLOR);
 	XSetFillStyle(display, gc, FillSolid);
 	XClearWindow(display, window);
-	XMapRaised(display, window);
+	XMapWindow(display, window);
 	XftColorAllocValue(display, DefaultVisual(display, screen),
 	    DefaultColormap(display, screen), &xrc, &color);
 
@@ -134,11 +168,11 @@ main()
 
 		/* xxx is there a way to make the positioning
 		 * less brittle? */
-		XftDrawStringUtf8(draw, &color, font, 5, WINDOW_SIZE/4,
+		XftDrawStringUtf8(draw, &color, font, 5, hints->width/4,
 		    (XftChar8 *)perc_str, strlen(perc_str));
 
 		XftDrawStringUtf8(draw, &color, font, 5,
-		    3.75 * (WINDOW_SIZE/4),
+		    3.75 * (hints->width/4),
 		    (XftChar8 *)acdc_str, strlen(acdc_str));
 
 		free(acdc_str);
@@ -147,7 +181,7 @@ main()
 		if (APM_ON_BATT(apm_status)) {
 			time_str = make_time_str(apm_status);
 			XftDrawStringUtf8(draw, &color, font, 5,
-			    (WINDOW_SIZE/2) + 10,
+			    (hints->width/2) + 10,
 			    (XftChar8 *)time_str, strlen(time_str));
 			free(time_str);
 		}
@@ -158,6 +192,7 @@ main()
 
 	free(apm_status);
 	close(fd_apm);
+	XFree(hints);
 	XFreeGC(display, gc);
 	XDestroyWindow(display, window);
 	XCloseDisplay(display);
@@ -231,4 +266,25 @@ make_time_str(struct apm_power_info *status)
 
 	asprintf(&str, "Est:%2d:%02d", hrs, mins);
 	return str;
+}
+
+void
+configure_window_geometry()
+{
+	int xgbm, x, y;
+	unsigned int w, h;
+
+	xgbm = XParseGeometry(X_GEOM, &x, &y, &w, &h);
+	if (xgbm & XValue)
+		win_x       = x;
+	if (xgbm & YValue)
+		win_y       = y;
+	if (xgbm & WidthValue)
+		win_width  = (int) w;
+	if (xgbm & HeightValue)
+		win_height = (int) h;
+	if (xgbm & XNegative && win_x == 0)
+		win_x      = -1;
+	if (xgbm & YNegative && win_y == 0)
+		win_y      = -1;
 }
