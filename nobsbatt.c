@@ -162,9 +162,6 @@ main()
 			if (apm_ioctl(apm_status) < 0)
 				err(1, "apm ioctl");
 
-		/* Draw everything, even if the info
-		 * is technically stale. This is necessary
-		 * to handle other events like window exposure. */
 		acdc_str = make_acdc_str(apm_status);
 		perc_str = make_perc_str(apm_status);
 
